@@ -1,13 +1,61 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Heart, Mail, Phone, MapPin, Clock, ArrowLeft, Send } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Heart, Mail, Phone, MapPin, Send } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
+import { apiService } from '@/services/api';
 
 const Contact = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    subject: '',
+    message: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      await apiService.createContact(formData);
+      toast({
+        title: 'Message Sent Successfully!',
+        description: 'Thank you for reaching out. We will get back to you soon.',
+      });
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        subject: '',
+        message: ''
+      });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to send message. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -33,245 +81,164 @@ const Contact = () => {
 
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-blue-50 to-green-50 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <Link to="/" className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-4">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Home
-            </Link>
-            <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">Get in Touch</h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              We'd love to hear from you. Whether you have questions, want to get involved, or need support, we're here to help.
-            </p>
-          </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+            Get in Touch
+          </h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Have questions about our work or want to get involved? We'd love to hear from you.
+          </p>
         </div>
       </section>
 
-      {/* Contact Information */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-            <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardContent className="p-8">
-                <div className="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                  <Mail className="h-8 w-8 text-blue-600" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">Email Us</h3>
-                <p className="text-gray-600 mb-4">Send us an email and we'll get back to you within 24 hours.</p>
-                <p className="text-blue-600 font-medium">info@hopeforward.org</p>
-                <p className="text-gray-500 text-sm">General inquiries</p>
-                <p className="text-blue-600 font-medium mt-2">partnerships@hopeforward.org</p>
-                <p className="text-gray-500 text-sm">Partnership opportunities</p>
-              </CardContent>
-            </Card>
-            <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardContent className="p-8">
-                <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                  <Phone className="h-8 w-8 text-green-600" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">Call Us</h3>
-                <p className="text-gray-600 mb-4">Speak directly with our team during business hours.</p>
-                <p className="text-green-600 font-medium">+1 (555) 123-4567</p>
-                <p className="text-gray-500 text-sm">Main office</p>
-                <p className="text-green-600 font-medium mt-2">+1 (555) 123-4568</p>
-                <p className="text-gray-500 text-sm">Donor services</p>
-              </CardContent>
-            </Card>
-            <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardContent className="p-8">
-                <div className="bg-purple-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                  <MapPin className="h-8 w-8 text-purple-600" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">Visit Us</h3>
-                <p className="text-gray-600 mb-4">Stop by our headquarters for an in-person conversation.</p>
-                <p className="text-purple-600 font-medium">123 Hope Street</p>
-                <p className="text-gray-500 text-sm">New York, NY 10001</p>
-                <p className="text-gray-500 text-sm mt-2">United States</p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Contact Form and Office Hours */}
-      <section className="py-16 bg-gray-50">
+      {/* Contact Content */}
+      <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            {/* Contact Information */}
+            <div className="space-y-8">
+              <div>
+                <h2 className="text-3xl font-bold text-gray-900 mb-6">Contact Information</h2>
+                <p className="text-gray-600 mb-8">
+                  Ready to make a difference? Reach out to us through any of the following channels.
+                </p>
+              </div>
+
+              <div className="space-y-6">
+                <div className="flex items-start space-x-4">
+                  <div className="bg-blue-100 rounded-lg p-3">
+                    <Mail className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">Email</h3>
+                    <p className="text-gray-600">info@hopeforward.org</p>
+                    <p className="text-gray-600">partnerships@hopeforward.org</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-4">
+                  <div className="bg-green-100 rounded-lg p-3">
+                    <Phone className="h-6 w-6 text-green-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">Phone</h3>
+                    <p className="text-gray-600">+1 (555) 123-4567</p>
+                    <p className="text-gray-600">+1 (555) 987-6543</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-4">
+                  <div className="bg-purple-100 rounded-lg p-3">
+                    <MapPin className="h-6 w-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">Address</h3>
+                    <p className="text-gray-600">123 Hope Street</p>
+                    <p className="text-gray-600">New York, NY 10001</p>
+                    <p className="text-gray-600">United States</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-blue-50 rounded-lg p-6">
+                <h3 className="font-semibold text-gray-900 mb-2">Office Hours</h3>
+                <div className="space-y-1 text-gray-600">
+                  <p>Monday - Friday: 9:00 AM - 6:00 PM</p>
+                  <p>Saturday: 10:00 AM - 4:00 PM</p>
+                  <p>Sunday: Closed</p>
+                </div>
+              </div>
+            </div>
+
             {/* Contact Form */}
-            <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">Send us a Message</h2>
-              <p className="text-gray-600 mb-8">
-                Fill out the form below and we'll get back to you as soon as possible. For urgent matters, please call us directly.
-              </p>
-              <Card>
-                <CardContent className="p-6">
-                  <form className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
-                          First Name *
-                        </label>
-                        <Input id="firstName" placeholder="Enter your first name" required />
-                      </div>
-                      <div>
-                        <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
-                          Last Name *
-                        </label>
-                        <Input id="lastName" placeholder="Enter your last name" required />
-                      </div>
-                    </div>
-                    <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                        Email Address *
-                      </label>
-                      <Input id="email" type="email" placeholder="Enter your email address" required />
-                    </div>
-                    <div>
-                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                        Phone Number
-                      </label>
-                      <Input id="phone" type="tel" placeholder="Enter your phone number" />
-                    </div>
-                    <div>
-                      <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
-                        Subject *
-                      </label>
-                      <Input id="subject" placeholder="What is this regarding?" required />
-                    </div>
-                    <div>
-                      <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
-                        Message *
-                      </label>
-                      <Textarea 
-                        id="message" 
-                        placeholder="Tell us how we can help you..." 
-                        rows={5}
-                        required 
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-2xl">Send us a Message</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Full Name *</Label>
+                      <Input
+                        id="name"
+                        name="name"
+                        type="text"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        placeholder="Your full name"
+                        required
                       />
                     </div>
-                    <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
-                      <Send className="h-4 w-4 mr-2" />
-                      Send Message
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
-            </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email Address *</Label>
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        placeholder="your.email@example.com"
+                        required
+                      />
+                    </div>
+                  </div>
 
-            {/* Office Hours and Additional Info */}
-            <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">Office Hours & Info</h2>
-              
-              <Card className="mb-6">
-                <CardContent className="p-6">
-                  <div className="flex items-center mb-4">
-                    <Clock className="h-6 w-6 text-blue-600 mr-3" />
-                    <h3 className="text-xl font-semibold text-gray-900">Business Hours</h3>
-                  </div>
-                  <div className="space-y-2 text-gray-600">
-                    <div className="flex justify-between">
-                      <span>Monday - Friday</span>
-                      <span>9:00 AM - 6:00 PM EST</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Saturday</span>
-                      <span>10:00 AM - 2:00 PM EST</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Sunday</span>
-                      <span>Closed</span>
-                    </div>
-                  </div>
-                  <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                    <p className="text-sm text-blue-800">
-                      For emergency situations in our program areas, please use our 24/7 emergency hotline: +1 (555) 123-HELP
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="mb-6">
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-4">Frequently Asked Questions</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <h4 className="font-medium text-gray-900">How can I volunteer?</h4>
-                      <p className="text-gray-600 text-sm">Visit our volunteer portal on the website or email volunteer@hopeforward.org</p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-900">Can I visit project sites?</h4>
-                      <p className="text-gray-600 text-sm">We organize donor visits twice yearly. Contact us for more information.</p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-900">How are donations used?</h4>
-                      <p className="text-gray-600 text-sm">85% goes directly to programs. View our financial transparency report online.</p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-900">Do you accept in-kind donations?</h4>
-                      <p className="text-gray-600 text-sm">Yes, for specific needs. Please contact us to discuss what items we currently need.</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-4">Media Inquiries</h3>
-                  <p className="text-gray-600 mb-4">
-                    For press releases, interviews, or media kits, please contact our communications team.
-                  </p>
                   <div className="space-y-2">
-                    <div className="flex items-center">
-                      <Mail className="h-4 w-4 text-gray-400 mr-2" />
-                      <span className="text-gray-600">media@hopeforward.org</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Phone className="h-4 w-4 text-gray-400 mr-2" />
-                      <span className="text-gray-600">+1 (555) 123-MEDIA</span>
-                    </div>
+                    <Label htmlFor="phone">Phone Number</Label>
+                    <Input
+                      id="phone"
+                      name="phone"
+                      type="tel"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      placeholder="+1 (555) 123-4567"
+                    />
                   </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Map/Location Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Find Us</h2>
-            <p className="text-gray-600">Our headquarters is located in the heart of New York City</p>
-          </div>
-          <div className="bg-gradient-to-br from-blue-100 to-green-100 rounded-3xl p-12 text-center">
-            <MapPin className="h-16 w-16 text-blue-600 mx-auto mb-4" />
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">HopeForward Headquarters</h3>
-            <p className="text-gray-600 mb-4">123 Hope Street, New York, NY 10001</p>
-            <p className="text-sm text-gray-500 mb-6">
-              Located near Union Square, easily accessible by subway (L, N, Q, R, W, 4, 5, 6 lines)
-            </p>
-            <Button variant="outline">
-              Get Directions
-            </Button>
-          </div>
-        </div>
-      </section>
+                  <div className="space-y-2">
+                    <Label htmlFor="subject">Subject *</Label>
+                    <Input
+                      id="subject"
+                      name="subject"
+                      type="text"
+                      value={formData.subject}
+                      onChange={handleInputChange}
+                      placeholder="What is this about?"
+                      required
+                    />
+                  </div>
 
-      {/* CTA Section */}
-      <section className="py-16 bg-blue-600">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">Ready to Make a Difference?</h2>
-          <p className="text-blue-100 mb-8 max-w-2xl mx-auto">
-            Don't wait to get involved. Join our community of changemakers and start creating impact today.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="secondary" className="bg-white text-blue-600 hover:bg-gray-100">
-              Donate Now
-            </Button>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
-              Become a Volunteer
-            </Button>
+                  <div className="space-y-2">
+                    <Label htmlFor="message">Message *</Label>
+                    <Textarea
+                      id="message"
+                      name="message"
+                      value={formData.message}
+                      onChange={handleInputChange}
+                      placeholder="Tell us more about your inquiry..."
+                      rows={5}
+                      required
+                    />
+                  </div>
+
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-blue-600 hover:bg-blue-700"
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      'Sending...'
+                    ) : (
+                      <>
+                        <Send className="mr-2 h-4 w-4" />
+                        Send Message
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>

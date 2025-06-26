@@ -1,12 +1,40 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Heart, Users, Globe, Target, ArrowRight, Mail, Phone, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
+import { apiService } from '@/services/api';
 
 const Index = () => {
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    setLoading(true);
+    try {
+      await apiService.subscribeNewsletter({ email });
+      toast({
+        title: 'Subscription Successful!',
+        description: 'Thank you for subscribing to our newsletter.',
+      });
+      setEmail('');
+    } catch (error) {
+      toast({
+        title: 'Subscription Failed',
+        description: 'This email might already be subscribed or there was an error.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -17,7 +45,7 @@ const Index = () => {
             <span className="text-xl font-bold text-gray-900">HopeForward</span>
           </div>
           <div className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="text-gray-700 hover:text-blue-600 transition-colors">Home</Link>
+            <Link to="/" className="text-blue-600 font-medium">Home</Link>
             <Link to="/about" className="text-gray-700 hover:text-blue-600 transition-colors">About</Link>
             <Link to="/programs" className="text-gray-700 hover:text-blue-600 transition-colors">Programs</Link>
             <Link to="/impact" className="text-gray-700 hover:text-blue-600 transition-colors">Impact</Link>
@@ -26,6 +54,9 @@ const Index = () => {
           <div className="flex items-center space-x-4">
             <Button variant="outline" size="sm">Join Us</Button>
             <Button size="sm" className="bg-blue-600 hover:bg-blue-700">Donate Now</Button>
+            <Link to="/admin/login">
+              <Button variant="ghost" size="sm" className="text-gray-500">Admin</Button>
+            </Link>
           </div>
         </nav>
       </header>
@@ -154,16 +185,24 @@ const Index = () => {
           <div className="text-center">
             <h2 className="text-3xl font-bold text-white mb-4">Stay Connected</h2>
             <p className="text-blue-100 mb-8 max-w-2xl mx-auto">Get the latest updates on our programs, success stories, and ways to make a difference.</p>
-            <div className="max-w-md mx-auto flex gap-4">
+            <form onSubmit={handleNewsletterSubmit} className="max-w-md mx-auto flex gap-4">
               <Input 
                 type="email" 
                 placeholder="Enter your email" 
                 className="bg-white"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
               />
-              <Button variant="secondary" className="bg-white text-blue-600 hover:bg-gray-100">
-                Subscribe
+              <Button 
+                type="submit" 
+                variant="secondary" 
+                className="bg-white text-blue-600 hover:bg-gray-100"
+                disabled={loading}
+              >
+                {loading ? 'Subscribing...' : 'Subscribe'}
               </Button>
-            </div>
+            </form>
           </div>
         </div>
       </section>
