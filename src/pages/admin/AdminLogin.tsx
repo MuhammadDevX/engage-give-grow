@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Heart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { apiService } from '@/services/api';
 
 const AdminLogin = () => {
   const [email, setEmail] = useState('');
@@ -20,21 +21,25 @@ const AdminLogin = () => {
     setLoading(true);
 
     try {
-      // Mock authentication - replace with actual auth logic
-      if (email === 'admin@hopeforward.org' && password === 'admin123') {
-        localStorage.setItem('auth_token', 'mock_token_123');
-        toast({
-          title: 'Login Successful',
-          description: 'Welcome to the admin dashboard!',
-        });
-        navigate('/admin');
-      } else {
-        throw new Error('Invalid credentials');
+      const response = await apiService.login({ email, password });
+      
+      if (response.data.user.role !== 'admin') {
+        throw new Error('Access denied. Admin role required.');
       }
-    } catch (error) {
+
+      localStorage.setItem('auth_token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      
+      toast({
+        title: 'Login Successful',
+        description: 'Welcome to the admin dashboard!',
+      });
+      
+      navigate('/admin');
+    } catch (error: any) {
       toast({
         title: 'Login Failed',
-        description: 'Please check your email and password.',
+        description: error.response?.data?.message || 'Please check your credentials.',
         variant: 'destructive',
       });
     } finally {
@@ -81,9 +86,8 @@ const AdminLogin = () => {
             </Button>
           </form>
           <div className="mt-4 text-center text-sm text-gray-600">
-            <p>Demo credentials:</p>
-            <p>Email: admin@hopeforward.org</p>
-            <p>Password: admin123</p>
+            <p>Note: You need to create an admin user in the backend first.</p>
+            <p>Use the backend API to register with role: 'admin'</p>
           </div>
         </CardContent>
       </Card>
