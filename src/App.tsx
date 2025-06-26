@@ -14,6 +14,13 @@ import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import ProgramsManagement from "./pages/admin/ProgramsManagement";
 import ContactsManagement from "./pages/admin/ContactsManagement";
+import ImpactManagement from "./pages/admin/ImpactManagement";
+import ContentManagement from "./pages/admin/ContentManagement";
+import DonationsManagement from "./pages/admin/DonationsManagement";
+import UsersManagement from "./pages/admin/UsersManagement";
+import NewsletterManagement from "./pages/admin/NewsletterManagement";
+import PartnersManagement from "./pages/admin/PartnersManagement";
+import SettingsManagement from "./pages/admin/SettingsManagement";
 
 const queryClient = new QueryClient();
 
@@ -29,22 +36,22 @@ const App = () => (
           <Route path="/programs" element={<Programs />} />
           <Route path="/impact" element={<Impact />} />
           <Route path="/contact" element={<Contact />} />
-          
+
           {/* Admin Routes */}
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="programs" element={<ProgramsManagement />} />
             <Route path="contacts" element={<ContactsManagement />} />
-            <Route path="impact" element={<div>Impact Management (Coming Soon)</div>} />
-            <Route path="content" element={<div>Content Management (Coming Soon)</div>} />
-            <Route path="donations" element={<div>Donations Management (Coming Soon)</div>} />
-            <Route path="users" element={<div>Users Management (Coming Soon)</div>} />
-            <Route path="newsletter" element={<div>Newsletter Management (Coming Soon)</div>} />
-            <Route path="partners" element={<div>Partners Management (Coming Soon)</div>} />
-            <Route path="settings" element={<div>Settings (Coming Soon)</div>} />
+            <Route path="impact" element={<ImpactManagement />} />
+            <Route path="content" element={<ContentManagement />} />
+            <Route path="donations" element={<DonationsManagement />} />
+            <Route path="users" element={<UsersManagement />} />
+            <Route path="newsletter" element={<NewsletterManagement />} />
+            <Route path="partners" element={<PartnersManagement />} />
+            <Route path="settings" element={<SettingsManagement />} />
           </Route>
-          
+
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

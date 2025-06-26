@@ -1,9 +1,8 @@
-
 import axios from 'axios';
 import { toast } from '@/hooks/use-toast';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
-
+console.log("Api base url", API_BASE_URL)
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -58,6 +57,7 @@ export const apiService = {
   createDonation: (data: any) => api.post('/donations', data),
   updateDonation: (id: string, data: any) => api.put(`/donations/${id}`, data),
   getDonationStats: () => api.get('/donations/stats'),
+  deleteDonation: (id: string) => api.delete(`/donations/${id}`),
 
   // Impact
   getImpactStats: (params?: any) => api.get('/impact', { params }),
@@ -77,6 +77,8 @@ export const apiService = {
   getContacts: (params?: any) => api.get('/contacts', { params }),
   createContact: (data: any) => api.post('/contacts', data),
   updateContact: (id: string, data: any) => api.put(`/contacts/${id}`, data),
+  deleteContact: (id: string) => api.delete(`/contact/${id}`),
+
 
   // Newsletter
   getNewsletterSubscribers: (params?: any) => api.get('/newsletter', { params }),
